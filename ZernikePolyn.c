@@ -69,7 +69,7 @@ int_fast8_t ZERNIKEPOLYN_rmPiston_cli()
 void __attribute__ ((constructor)) libinit_ZernikePolyn()
 {
 	init_ZernikePolyn();
-	printf(" ...... Loading module %s\n", __FILE__);
+//	printf(" ...... Loading module %s\n", __FILE__);
 }
 
 
