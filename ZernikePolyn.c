@@ -82,7 +82,7 @@ int_fast8_t init_ZernikePolyn()
   Zernike.ZERMAX = 5000;
 
   strcpy(data.module[data.NBmodule].name, __FILE__);
-  strcpy(data.module[data.NBmodule].info, "create and fit Zernike polynomials");
+  strcpy(data.module[data.NBmodule].info, "milk    - Create and fit Zernike polynomials");
   data.NBmodule++;
 
   strcpy(data.cmd[data.NBcmd].key,"mkzer");
