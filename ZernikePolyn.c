@@ -8,7 +8,6 @@
 #include <fitsio.h>  /* required by every program that uses CFITSIO  */
 
 #include "CommandLineInterface/CLIcore.h"
-
 #include "COREMOD_memory/COREMOD_memory.h"
 #include "COREMOD_iofits/COREMOD_iofits.h"
 #include "COREMOD_arith/COREMOD_arith.h"
@@ -69,12 +68,7 @@ int_fast8_t ZERNIKEPOLYN_rmPiston_cli()
 void __attribute__ ((constructor)) libinit_ZernikePolyn()
 {
 	init_ZernikePolyn();
-
-	if(data.progStatus>0)
-	{
-		printf("  Found unloaded shared object in ./libs/ -> LOADING module %s\n", __FILE__);
-		fflush(stdout);
-	}	
+	RegisterModule(__FILE__, "milk", "Create and fit Zernike polynomials");
 }
 
 
@@ -85,11 +79,6 @@ int_fast8_t init_ZernikePolyn()
  
   Zernike.init = 0;
   Zernike.ZERMAX = 5000;
-
-  strcpy(data.module[data.NBmodule].name, __FILE__);
-  strcpy(data.module[data.NBmodule].package, "milk");
-  strcpy(data.module[data.NBmodule].info, "Create and fit Zernike polynomials");
-  data.NBmodule++;
 
   strcpy(data.cmd[data.NBcmd].key,"mkzer");
   strcpy(data.cmd[data.NBcmd].module,__FILE__);
