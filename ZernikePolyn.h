@@ -14,7 +14,7 @@ typedef struct /* structure to store Zernike coefficients */
 
 
 
-
+void __attribute__ ((constructor)) libinit_ZernikePolyn();
 int_fast8_t init_ZernikePolyn();
 
 

@@ -22,6 +22,9 @@
 #define PI 3.14159265358979323846264338328
 
 extern DATA data;
+
+static int INITSTATUS_ZernikePolyn = 0;
+
 ZERNIKE Zernike;
 
 
@@ -67,8 +70,12 @@ int_fast8_t ZERNIKEPOLYN_rmPiston_cli()
 //
 void __attribute__ ((constructor)) libinit_ZernikePolyn()
 {
-	init_ZernikePolyn();
-	RegisterModule(__FILE__, "milk", "Create and fit Zernike polynomials");
+	if ( INITSTATUS_ZernikePolyn == 0 )
+	{
+		init_ZernikePolyn();
+		RegisterModule(__FILE__, "milk", "Create and fit Zernike polynomials");
+		INITSTATUS_ZernikePolyn = 1;
+	}
 }
 
 
