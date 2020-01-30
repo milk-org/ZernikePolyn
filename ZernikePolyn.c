@@ -38,29 +38,49 @@ ZERNIKE Zernike;
 // 4: existing image
 //
 
-int_fast8_t mk_zer_cli()
+errno_t mk_zer_cli()
 {
-  if(CLI_checkarg(1, 3)+CLI_checkarg(2, 2)+CLI_checkarg(3, 2)+CLI_checkarg(4, 1)==0)
+    if(
+        CLI_checkarg(1, 3) +
+        CLI_checkarg(2, 2) +
+        CLI_checkarg(3, 2) +
+        CLI_checkarg(4, 1)
+        == 0 )
     {
-      mk_zer(data.cmdargtoken[1].val.string, data.cmdargtoken[2].val.numl, data.cmdargtoken[3].val.numl, data.cmdargtoken[4].val.numf);
-      return 0;
+        mk_zer(
+            data.cmdargtoken[1].val.string,
+            data.cmdargtoken[2].val.numl,
+            data.cmdargtoken[3].val.numl,
+            data.cmdargtoken[4].val.numf
+        );
+
+        return CLICMD_SUCCESS;
     }
-  else
-    return 1;
+    else {
+        return CLICMD_INVALID_ARG;
+    }
 }
 
 
 
 
-int_fast8_t ZERNIKEPOLYN_rmPiston_cli()
+errno_t ZERNIKEPOLYN_rmPiston_cli()
 {
-  if(CLI_checkarg(1, 4)+CLI_checkarg(2, 4)==0)
+    if(
+        CLI_checkarg(1, 4) +
+        CLI_checkarg(2, 4)
+        == 0 )
     {
-      ZERNIKEPOLYN_rmPiston(data.cmdargtoken[1].val.string, data.cmdargtoken[2].val.string);
-      return 0;
+        ZERNIKEPOLYN_rmPiston(
+            data.cmdargtoken[1].val.string,
+            data.cmdargtoken[2].val.string
+        );
+
+        return CLICMD_SUCCESS;
     }
-  else
-    return 1;
+    else {
+        return CLICMD_INVALID_ARG;
+    }
 }
 
 
@@ -81,7 +101,7 @@ void __attribute__ ((constructor)) libinit_ZernikePolyn()
 
 
 
-int_fast8_t init_ZernikePolyn()
+errno_t init_ZernikePolyn()
 {
  
   Zernike.init = 0;
@@ -108,7 +128,7 @@ int_fast8_t init_ZernikePolyn()
  
  // add atexit functions here
 
-  return 0;
+  return RETURN_SUCCESS;
 
 }
 
@@ -255,7 +275,14 @@ double Zernike_value(long j, double r, double PA)
   return(value);
 }
 
-long mk_zer(const char *ID_name, long SIZE, long zer_nb, float rpix)
+
+
+imageID mk_zer(
+    const char *ID_name,
+    long        SIZE,
+    long        zer_nb,
+    float      rpix
+)
 {
     long ii, jj;
     double r,theta;
@@ -272,31 +299,31 @@ long mk_zer(const char *ID_name, long SIZE, long zer_nb, float rpix)
 
     ID = variable_ID("ZEXTENDc1");
     if(ID!=-1)
-      {
-	coeffextend1 = data.variable[ID].value.f;
-	printf("ZEXTENDc1 = %f\n", coeffextend1);
-      }
+    {
+        coeffextend1 = data.variable[ID].value.f;
+        printf("ZEXTENDc1 = %f\n", coeffextend1);
+    }
 
     ID = variable_ID("ZEXTENDc2");
     if(ID!=-1)
-      {
-	coeffextend2 = data.variable[ID].value.f;
-	printf("ZEXTENDc2 = %f\n", coeffextend2);
-      }
+    {
+        coeffextend2 = data.variable[ID].value.f;
+        printf("ZEXTENDc2 = %f\n", coeffextend2);
+    }
 
 
     ID = variable_ID("Zxoffset");
     if(ID!=-1)
-      {
-	xoffset = data.variable[ID].value.f;
-	printf("Zxoffset = %f\n", xoffset);
-      }
+    {
+        xoffset = data.variable[ID].value.f;
+        printf("Zxoffset = %f\n", xoffset);
+    }
     ID = variable_ID("Zyoffset");
     if(ID!=-1)
-      {
-	yoffset = data.variable[ID].value.f;
-	printf("Zyoffset = %f\n", yoffset);
-      }
+    {
+        yoffset = data.variable[ID].value.f;
+        printf("Zyoffset = %f\n", yoffset);
+    }
 
 
 
@@ -304,7 +331,7 @@ long mk_zer(const char *ID_name, long SIZE, long zer_nb, float rpix)
     naxes[1] = SIZE;
 
     if(Zernike.init==0)
-      zernike_init();
+        zernike_init();
 
     n = Zernike.Zer_n[zer_nb];
     m = Zernike.Zer_m[zer_nb];
@@ -314,67 +341,71 @@ long mk_zer(const char *ID_name, long SIZE, long zer_nb, float rpix)
 
     /* let's compute the polar coordinates */
     ss = 0.0;
-    for (ii=0;ii<SIZE;ii++)
-      for (jj=0;jj<SIZE;jj++)
-	{
-	  x = 1.0*(ii-SIZE/2)-xoffset;
-	  y = 1.0*(jj-SIZE/2)-yoffset;
-	  
-	  r = sqrt(x*x+y*y)/rpix;
-	  theta = atan2(y,x);
-	  if(r<1.0)	    
-	    {
-	      data.image[ID].array.F[jj*naxes[0]+ii] = Zernike_value(zer_nb,r,theta);
-	      //printf("%f\n", Zernike_value(zer_nb,r,theta));
-	      ss += data.image[ID].array.F[jj*naxes[0]+ii]*data.image[ID].array.F[jj*naxes[0]+ii];
-	    }
-	  else
-	    if(coeffextend1>0)
-	      {
-		r = 1.0 + (r-1.0)/(1.0+coeffextend1*(r-1.0));
-		data.image[ID].array.F[jj*naxes[0]+ii] = Zernike_value(zer_nb, 1.0, theta);
-		data.image[ID].array.F[jj*naxes[0]+ii] *= exp(-pow((r-1.0)/(rpix*coeffextend2), coeffextend3));
-		//	data.image[ID].array.F[jj*naxes[0]+ii] = r;
-		//printf("%f %f\n", Zernike_value(zer_nb, 1.0, theta), exp(-pow((r-1.0)/(rpix*coeffextend2), coeffextend3)));
-	      }
-	}
-  
+    for (ii=0; ii<SIZE; ii++)
+        for (jj=0; jj<SIZE; jj++)
+        {
+            x = 1.0*(ii-SIZE/2)-xoffset;
+            y = 1.0*(jj-SIZE/2)-yoffset;
+
+            r = sqrt(x*x+y*y)/rpix;
+            theta = atan2(y,x);
+            if(r<1.0)
+            {
+                data.image[ID].array.F[jj*naxes[0]+ii] = Zernike_value(zer_nb,r,theta);
+                //printf("%f\n", Zernike_value(zer_nb,r,theta));
+                ss += data.image[ID].array.F[jj*naxes[0]+ii]*data.image[ID].array.F[jj*naxes[0]+ii];
+            }
+            else if(coeffextend1>0)
+            {
+                r = 1.0 + (r-1.0)/(1.0+coeffextend1*(r-1.0));
+                data.image[ID].array.F[jj*naxes[0]+ii] = Zernike_value(zer_nb, 1.0, theta);
+                data.image[ID].array.F[jj*naxes[0]+ii] *= exp(-pow((r-1.0)/(rpix*coeffextend2), coeffextend3));
+                //	data.image[ID].array.F[jj*naxes[0]+ii] = r;
+                //printf("%f %f\n", Zernike_value(zer_nb, 1.0, theta), exp(-pow((r-1.0)/(rpix*coeffextend2), coeffextend3)));
+            }
+        }
+
     if (zer_nb>0)
-      {
-		      double coeff_norm;
-		      
-	make_disk("disk_tmp", SIZE, SIZE, SIZE/2, SIZE/2, rpix);
-	coeff_norm = sqrt(ssquare("disk_tmp")/ss);
-	//	printf("coeff = %f\n", coeff_norm);
-	arith_image_cstmult_inplace(ID_name, coeff_norm);
-	delete_image_ID("disk_tmp");
-      }
+    {
+        double coeff_norm;
+
+        make_disk("disk_tmp", SIZE, SIZE, SIZE/2, SIZE/2, rpix);
+        coeff_norm = sqrt(ssquare("disk_tmp")/ss);
+        //	printf("coeff = %f\n", coeff_norm);
+        arith_image_cstmult_inplace(ID_name, coeff_norm);
+        delete_image_ID("disk_tmp");
+    }
 
 
     if(zer_nb==0)
-      {
-	for (ii=0;ii<SIZE;ii++)
-	  for (jj=0;jj<SIZE;jj++)
-	    {
-	      r = sqrt((ii-SIZE/2)*(ii-SIZE/2)+(jj-SIZE/2)*(jj-SIZE/2))/rpix;
-	      if(r>1.0)
-		{
-		  if(coeffextend1<0)
-		    data.image[ID].array.F[jj*naxes[0]+ii] = 0.0;
-		  else
-		    data.image[ID].array.F[jj*naxes[0]+ii] = 1.0;
-		}
-	    }
-      }
-    
+    {
+        for (ii=0; ii<SIZE; ii++)
+            for (jj=0; jj<SIZE; jj++)
+            {
+                r = sqrt((ii-SIZE/2)*(ii-SIZE/2)+(jj-SIZE/2)*(jj-SIZE/2))/rpix;
+                if(r>1.0)
+                {
+                    if(coeffextend1<0)
+                        data.image[ID].array.F[jj*naxes[0]+ii] = 0.0;
+                    else
+                        data.image[ID].array.F[jj*naxes[0]+ii] = 1.0;
+                }
+            }
+    }
 
-    return(ID);
+
+    return ID;
 }
 
 
 
 // continue Zernike exp. beyond nominal radius, using the same polynomial expression
-long mk_zer_unbounded(const char *ID_name, long SIZE, long zer_nb, float rpix)
+imageID mk_zer_unbounded(
+    const char *ID_name,
+    long        SIZE,
+    long        zer_nb,
+    float       rpix
+)
 {
     long ii, jj;
     double r, theta;
@@ -386,7 +417,7 @@ long mk_zer_unbounded(const char *ID_name, long SIZE, long zer_nb, float rpix)
     naxes[1] = SIZE;
 
     if(Zernike.init==0)
-      zernike_init();
+        zernike_init();
 
     n = Zernike.Zer_n[zer_nb];
     m = Zernike.Zer_m[zer_nb];
@@ -395,44 +426,49 @@ long mk_zer_unbounded(const char *ID_name, long SIZE, long zer_nb, float rpix)
     ID = image_ID(ID_name);
 
     /* let's compute the polar coordinates */
-    for (ii=0;ii<SIZE;ii++)
-      for (jj=0;jj<SIZE;jj++)
-	{
-	  r = sqrt((ii-SIZE/2)*(ii-SIZE/2)+(jj-SIZE/2)*(jj-SIZE/2))/rpix;
-	  theta = atan2((jj-SIZE/2),(ii-SIZE/2));
-	  //	  if(r<1.0)
-	  data.image[ID].array.F[jj*naxes[0]+ii] = Zernike_value(zer_nb,r,theta);
-	}
-    
+    for (ii=0; ii<SIZE; ii++)
+        for (jj=0; jj<SIZE; jj++)
+        {
+            r = sqrt((ii-SIZE/2)*(ii-SIZE/2)+(jj-SIZE/2)*(jj-SIZE/2))/rpix;
+            theta = atan2((jj-SIZE/2),(ii-SIZE/2));
+            //	  if(r<1.0)
+            data.image[ID].array.F[jj*naxes[0]+ii] = Zernike_value(zer_nb,r,theta);
+        }
+
     if (zer_nb>0)
-      {
-		  double coeff_norm;
-		  
-	make_disk("disk_tmp",SIZE,SIZE,SIZE/2,SIZE/2,rpix);
-	coeff_norm=sqrt(ssquare("disk_tmp")/ssquare(ID_name));
-	arith_image_cstmult_inplace(ID_name,coeff_norm);
-	delete_image_ID("disk_tmp");
-      }
+    {
+        double coeff_norm;
+
+        make_disk("disk_tmp",SIZE,SIZE,SIZE/2,SIZE/2,rpix);
+        coeff_norm=sqrt(ssquare("disk_tmp")/ssquare(ID_name));
+        arith_image_cstmult_inplace(ID_name,coeff_norm);
+        delete_image_ID("disk_tmp");
+    }
 
     if(zer_nb==0)
-      {
-	for (ii=0;ii<SIZE;ii++)
-	  for (jj=0;jj<SIZE;jj++)
-	    {
-	      //r = sqrt((ii-SIZE/2)*(ii-SIZE/2)+(jj-SIZE/2)*(jj-SIZE/2))/rpix;
-	      //    if(r<1.0)
-	      data.image[ID].array.F[jj*naxes[0]+ii] = 1.0;
-	    }
-      }
- 
-    return(ID);
+    {
+        for (ii=0; ii<SIZE; ii++)
+            for (jj=0; jj<SIZE; jj++)
+            {
+                //r = sqrt((ii-SIZE/2)*(ii-SIZE/2)+(jj-SIZE/2)*(jj-SIZE/2))/rpix;
+                //    if(r<1.0)
+                data.image[ID].array.F[jj*naxes[0]+ii] = 1.0;
+            }
+    }
+
+    return ID;
 }
 
 
 
 
 // continue Zernike exp. beyond nominal radius, using the r=1 for r>1
-long mk_zer_unbounded1(const char *ID_name, long SIZE, long zer_nb, float rpix)
+imageID mk_zer_unbounded1(
+    const char *ID_name,
+    long        SIZE,
+    long        zer_nb,
+    float       rpix
+)
 {
     long ii, jj;
     double r,theta;
@@ -445,7 +481,7 @@ long mk_zer_unbounded1(const char *ID_name, long SIZE, long zer_nb, float rpix)
     naxes[1] = SIZE;
 
     if(Zernike.init==0)
-      zernike_init();
+        zernike_init();
 
     n = Zernike.Zer_n[zer_nb];
     m = Zernike.Zer_m[zer_nb];
@@ -454,116 +490,44 @@ long mk_zer_unbounded1(const char *ID_name, long SIZE, long zer_nb, float rpix)
     ID = image_ID(ID_name);
 
     /* let's compute the polar coordinates */
-    for (ii=0;ii<SIZE;ii++)
-      for (jj=0;jj<SIZE;jj++)
-	{
-	  r = sqrt((ii-SIZE/2)*(ii-SIZE/2)+(jj-SIZE/2)*(jj-SIZE/2))/rpix;
-	  theta = atan2((jj-SIZE/2),(ii-SIZE/2));
-	  if(r>1.0)
-	    r = 1.0;
-	  data.image[ID].array.F[jj*naxes[0]+ii] = Zernike_value(zer_nb,r,theta);
-	}
-    
+    for (ii=0; ii<SIZE; ii++)
+        for (jj=0; jj<SIZE; jj++)
+        {
+            r = sqrt((ii-SIZE/2)*(ii-SIZE/2)+(jj-SIZE/2)*(jj-SIZE/2))/rpix;
+            theta = atan2((jj-SIZE/2),(ii-SIZE/2));
+            if(r>1.0)
+                r = 1.0;
+            data.image[ID].array.F[jj*naxes[0]+ii] = Zernike_value(zer_nb,r,theta);
+        }
+
     if (zer_nb>0)
-      {
-	make_disk("disk_tmp",SIZE,SIZE,SIZE/2,SIZE/2,rpix);
-	coeff_norm=sqrt(ssquare("disk_tmp")/ssquare(ID_name));
-	arith_image_cstmult_inplace(ID_name,coeff_norm);
-	delete_image_ID("disk_tmp");
-      }
+    {
+        make_disk("disk_tmp",SIZE,SIZE,SIZE/2,SIZE/2,rpix);
+        coeff_norm=sqrt(ssquare("disk_tmp")/ssquare(ID_name));
+        arith_image_cstmult_inplace(ID_name,coeff_norm);
+        delete_image_ID("disk_tmp");
+    }
 
     if(zer_nb==0)
-      {
-	for (ii=0;ii<SIZE;ii++)
-	  for (jj=0;jj<SIZE;jj++)
-	    {
-	      data.image[ID].array.F[jj*naxes[0]+ii] = 1.0;
-	    }
-      }
- 
-    return(ID);
-}
-
-
-
-int mk_zer_series(const char *ID_name, long SIZE, long zer_nb, float rpix)
-{
-  long ii, jj;
-  double *r;
-  double *theta;
-  long ID;
-  long naxes[2];
-  double tmp;
-  char fname[200];
-  long j;
-  
-  j=0;
-  naxes[0] = SIZE;
-  naxes[1] = SIZE;
-  
-  if(Zernike.init==0)
-    zernike_init();
-  
-  create_2Dimage_ID("ztmp",SIZE,SIZE);
-  ID = image_ID("ztmp");
-  
-  r = (double*) malloc(SIZE*SIZE*sizeof(double));
-  theta = (double*) malloc(SIZE*SIZE*sizeof(double));
-  
-  if ((r==NULL)||(theta==NULL))
-    printf("error in memory allocation !!!\n");
-  
-  /* let's compute the polar coordinates */
-  for (ii=0;ii<SIZE;ii++)
-    for (jj=0;jj<SIZE;jj++)
-      {
-	r[jj*naxes[0]+ii] = sqrt((0.5+ii-SIZE/2)*(0.5+ii-SIZE/2)+(0.5+jj-SIZE/2)*(0.5+jj-SIZE/2))/rpix;
-	theta[jj*naxes[0]+ii] = atan2((jj-SIZE/2),(ii-SIZE/2));
-      }
-  
-  /* let's make the Zernikes */
-  for (ii=0;ii<SIZE;ii++)
-    for (jj=0;jj<SIZE;jj++)
-      {
-	tmp = r[jj*naxes[0]+ii];
-	if(tmp < 1.0)
-	  data.image[ID].array.F[jj*SIZE+ii] = 1.0;
-	else
-	  data.image[ID].array.F[jj*SIZE+ii] = 0.0;
-      }
-  sprintf(fname,"%s%ld",ID_name,j);
-  save_fl_fits("ztmp",fname);
-  
-  for (j=1; j<zer_nb; j++)
     {
-      /*	printf("%ld/%ld\n",j,zer_nb);*/
-      fflush(stdout);
-      
-      for (ii=0;ii<SIZE;ii++)
-	for (jj=0;jj<SIZE;jj++)
-	  {
-	    tmp = r[jj*naxes[0]+ii];
-	    if(tmp < 1.0)
-	      data.image[ID].array.F[jj*SIZE+ii] = Zernike_value(j,tmp,theta[jj*naxes[0]+ii]);
-	    else
-	      data.image[ID].array.F[jj*SIZE+ii] = 0.0;
-	  }
-      
-      sprintf(fname,"%s%04ld",ID_name,j);
-      save_fl_fits("ztmp",fname);
+        for (ii=0; ii<SIZE; ii++)
+            for (jj=0; jj<SIZE; jj++)
+            {
+                data.image[ID].array.F[jj*naxes[0]+ii] = 1.0;
+            }
     }
-  
-  delete_image_ID("ztmp");
-  
-  free(r);
-  free(theta);
-  
-  return(0);
+
+    return ID;
 }
 
 
 
-long mk_zer_seriescube(const char *ID_namec, long SIZE, long zer_nb, float rpix)
+errno_t mk_zer_series(
+    const char *ID_name,
+    long        SIZE,
+    long        zer_nb,
+    float       rpix
+)
 {
     long ii, jj;
     double *r;
@@ -581,8 +545,89 @@ long mk_zer_seriescube(const char *ID_namec, long SIZE, long zer_nb, float rpix)
     if(Zernike.init==0)
         zernike_init();
 
+    create_2Dimage_ID("ztmp",SIZE,SIZE);
+    ID = image_ID("ztmp");
+
+    r = (double*) malloc(SIZE*SIZE*sizeof(double));
+    theta = (double*) malloc(SIZE*SIZE*sizeof(double));
+
+    if ((r==NULL)||(theta==NULL))
+        printf("error in memory allocation !!!\n");
+
+    /* let's compute the polar coordinates */
+    for (ii=0; ii<SIZE; ii++)
+        for (jj=0; jj<SIZE; jj++)
+        {
+            r[jj*naxes[0]+ii] = sqrt((0.5+ii-SIZE/2)*(0.5+ii-SIZE/2)+(0.5+jj-SIZE/2)*(0.5+jj-SIZE/2))/rpix;
+            theta[jj*naxes[0]+ii] = atan2((jj-SIZE/2),(ii-SIZE/2));
+        }
+
+    /* let's make the Zernikes */
+    for (ii=0; ii<SIZE; ii++)
+        for (jj=0; jj<SIZE; jj++)
+        {
+            tmp = r[jj*naxes[0]+ii];
+            if(tmp < 1.0)
+                data.image[ID].array.F[jj*SIZE+ii] = 1.0;
+            else
+                data.image[ID].array.F[jj*SIZE+ii] = 0.0;
+        }
+    sprintf(fname,"%s%ld",ID_name,j);
+    save_fl_fits("ztmp",fname);
+
+    for (j=1; j<zer_nb; j++)
+    {
+        /*	printf("%ld/%ld\n",j,zer_nb);*/
+        fflush(stdout);
+
+        for (ii=0; ii<SIZE; ii++)
+            for (jj=0; jj<SIZE; jj++)
+            {
+                tmp = r[jj*naxes[0]+ii];
+                if(tmp < 1.0)
+                    data.image[ID].array.F[jj*SIZE+ii] = Zernike_value(j,tmp,theta[jj*naxes[0]+ii]);
+                else
+                    data.image[ID].array.F[jj*SIZE+ii] = 0.0;
+            }
+
+        sprintf(fname,"%s%04ld",ID_name,j);
+        save_fl_fits("ztmp",fname);
+    }
+
+    delete_image_ID("ztmp");
+
+    free(r);
+    free(theta);
+
+    return RETURN_SUCCESS;
+}
+
+
+
+imageID mk_zer_seriescube(
+    const char *ID_namec,
+    long        SIZE,
+    long        zer_nb,
+    float       rpix
+)
+{
+    long ii, jj;
+    double *r;
+    double *theta;
+    long ID;
+    long naxes[2];
+    double tmp;
+    long j;
+
+    j=0;
+    naxes[0] = SIZE;
+    naxes[1] = SIZE;
+
+    if(Zernike.init==0)
+        zernike_init();
+
     ID = create_3Dimage_ID(ID_namec, SIZE, SIZE, zer_nb);
-//    ID = image_ID("ztmp");
+    //    ID = image_ID("ztmp");
 
     r = (double*) malloc(SIZE*SIZE*sizeof(double));
     theta = (double*) malloc(SIZE*SIZE*sizeof(double));
@@ -611,7 +656,7 @@ long mk_zer_seriescube(const char *ID_namec, long SIZE, long zer_nb, float rpix)
     for (j=1; j<zer_nb; j++)
     {
         /*	printf("%ld/%ld\n",j,zer_nb);*/
-//        fflush(stdout);
+        //        fflush(stdout);
 
         for (ii=0; ii<SIZE; ii++)
             for (jj=0; jj<SIZE; jj++)
@@ -622,12 +667,12 @@ long mk_zer_seriescube(const char *ID_namec, long SIZE, long zer_nb, float rpix)
                 else
                     data.image[ID].array.F[j*SIZE*SIZE + jj*SIZE + ii] = 0.0;
             }
-	}
+    }
 
     free(r);
     free(theta);
 
-    return(ID);
+    return ID;
 }
 
 

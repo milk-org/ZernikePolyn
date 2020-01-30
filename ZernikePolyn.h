@@ -15,7 +15,8 @@ typedef struct /* structure to store Zernike coefficients */
 
 
 void __attribute__ ((constructor)) libinit_ZernikePolyn();
-int_fast8_t init_ZernikePolyn();
+
+errno_t init_ZernikePolyn();
 
 
 
@@ -29,13 +30,37 @@ long Zernike_m(long i);
 
 double Zernike_value(long j, double r, double PA);
 
-long mk_zer(const char *ID_name, long SIZE, long zer_nb, float rpix);
 
-long mk_zer_unbounded(const char *ID_name, long SIZE, long zer_nb, float rpix);
+imageID mk_zer(
+    const char *ID_name,
+    long        SIZE,
+    long        zer_nb,
+    float      rpix
+);
 
-int mk_zer_series(const char *ID_name, long SIZE, long zer_nb, float rpix);
 
-long mk_zer_seriescube(const char *ID_namec, long SIZE, long zer_nb, float rpix);
+imageID mk_zer_unbounded(
+    const char *ID_name,
+    long        SIZE,
+    long        zer_nb,
+    float       rpix
+);
+
+errno_t mk_zer_series(
+    const char *ID_name,
+    long        SIZE,
+    long        zer_nb,
+    float       rpix
+);
+
+
+imageID mk_zer_seriescube(
+    const char *ID_namec,
+    long        SIZE,
+    long        zer_nb,
+    float       rpix
+);
+
 
 double get_zer(const char *ID_name, long zer_nb, double radius);
 
