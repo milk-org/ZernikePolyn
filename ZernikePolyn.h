@@ -5,16 +5,16 @@
 
 typedef struct /* structure to store Zernike coefficients */
 {
-  int init;
-  long ZERMAX;
-  long *Zer_n;
-  long *Zer_m;
-  double *R_array;
+    int init;
+    long ZERMAX;
+    long *Zer_n;
+    long *Zer_m;
+    double *R_array;
 } ZERNIKE;
 
 
 
-void __attribute__ ((constructor)) libinit_ZernikePolyn();
+void __attribute__((constructor)) libinit_ZernikePolyn();
 
 
 
@@ -63,18 +63,22 @@ imageID mk_zer_seriescube(
 
 double get_zer(const char *ID_name, long zer_nb, double radius);
 
-double get_zer_crop(const char *ID_name, long zer_nb, double radius, double radius1);
+double get_zer_crop(const char *ID_name, long zer_nb, double radius,
+                    double radius1);
 
 int get_zerns(const char *ID_name, long max_zer, double radius);
 
-int get_zern_array(const char *ID_name, long max_zer, double radius, double *array);
+int get_zern_array(const char *ID_name, long max_zer, double radius,
+                   double *array);
 
-int remove_zerns(const char *ID_name, const char *ID_name_out, int max_zer, double radius);
+int remove_zerns(const char *ID_name, const char *ID_name_out, int max_zer,
+                 double radius);
 
 long ZERNIKEPOLYN_rmPiston(const char *ID_name, const char *IDmask_name);
 
 int remove_TTF(const char *ID_name, const char *ID_name_out, double radius);
 
-double fit_zer(const char *ID_name, long maxzer_nb, double radius, double *zvalue, double *residual);
+double fit_zer(const char *ID_name, long maxzer_nb, double radius,
+               double *zvalue, double *residual);
 
 #endif
