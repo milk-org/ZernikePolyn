@@ -16,7 +16,6 @@ typedef struct /* structure to store Zernike coefficients */
 
 void __attribute__ ((constructor)) libinit_ZernikePolyn();
 
-errno_t init_ZernikePolyn();
 
 
 

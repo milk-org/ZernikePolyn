@@ -1,3 +1,29 @@
+
+
+/* ================================================================== */
+/* ================================================================== */
+/*            MODULE INFO                                             */
+/* ================================================================== */
+/* ================================================================== */
+
+// module default short name
+// all CLI calls to this module functions will be <shortname>.<funcname>
+// if set to "", then calls use <funcname>
+#define MODULE_SHORTNAME_DEFAULT ""
+
+// Module short description 
+#define MODULE_DESCRIPTION       "Create and fit Zernike polynomials"
+
+// Application to which module belongs
+#define MODULE_APPLICATION       "milk"
+
+
+
+
+
+
+
+
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
@@ -23,9 +49,30 @@
 
 //extern DATA data;
 
-static int INITSTATUS_ZernikePolyn = 0;
 
 ZERNIKE Zernike;
+
+
+
+
+/* ================================================================== */
+/* ================================================================== */
+/*            INITIALIZE LIBRARY                                      */
+/* ================================================================== */
+/* ================================================================== */
+
+// Module initialization macro in CLIcore.h
+// macro argument defines module name for bindings
+//
+INIT_MODULE_LIB(ZernikePolyn)
+
+
+/* ================================================================== */
+/* ================================================================== */
+/*            COMMAND LINE INTERFACE (CLI) FUNCTIONS                  */
+/* ================================================================== */
+/* ================================================================== */
+
 
 
 
@@ -41,10 +88,10 @@ ZERNIKE Zernike;
 errno_t mk_zer_cli()
 {
     if(
-        CLI_checkarg(1, 3) +
-        CLI_checkarg(2, 2) +
-        CLI_checkarg(3, 2) +
-        CLI_checkarg(4, 1)
+        CLI_checkarg(1, CLIARG_STR_NOT_IMG) +
+        CLI_checkarg(2, CLIARG_LONG) +
+        CLI_checkarg(3, CLIARG_LONG) +
+        CLI_checkarg(4, CLIARG_FLOAT)
         == 0 )
     {
         mk_zer(
@@ -67,8 +114,8 @@ errno_t mk_zer_cli()
 errno_t ZERNIKEPOLYN_rmPiston_cli()
 {
     if(
-        CLI_checkarg(1, 4) +
-        CLI_checkarg(2, 4)
+        CLI_checkarg(1, CLIARG_IMG) +
+        CLI_checkarg(2, CLIARG_IMG)
         == 0 )
     {
         ZERNIKEPOLYN_rmPiston(
@@ -85,23 +132,8 @@ errno_t ZERNIKEPOLYN_rmPiston_cli()
 
 
 
-//
-// attribute ((constructor)) : function executed when shared library loaded
-//
-void __attribute__ ((constructor)) libinit_ZernikePolyn()
-{
-    if ( INITSTATUS_ZernikePolyn == 0 )
-    {
-        init_ZernikePolyn();
-        RegisterModule(__FILE__, "milk", "Create and fit Zernike polynomials");
-        INITSTATUS_ZernikePolyn = 1;
-    }
-}
 
-
-
-
-errno_t init_ZernikePolyn()
+static errno_t init_module_CLI()
 {
 
     Zernike.init = 0;
