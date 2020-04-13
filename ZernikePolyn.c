@@ -38,7 +38,6 @@
 #include "COREMOD_iofits/COREMOD_iofits.h"
 #include "COREMOD_arith/COREMOD_arith.h"
 
-#include "info/info.h"
 #include "image_gen/image_gen.h"
 
 #include "ZernikePolyn/ZernikePolyn.h"
@@ -429,7 +428,7 @@ imageID mk_zer(
         double coeff_norm;
 
         make_disk("disk_tmp", SIZE, SIZE, SIZE / 2, SIZE / 2, rpix);
-        coeff_norm = sqrt(ssquare("disk_tmp") / ss);
+        coeff_norm = sqrt(arith_image_sumsquare("disk_tmp") / ss);
         //	printf("coeff = %f\n", coeff_norm);
         arith_image_cstmult_inplace(ID_name, coeff_norm);
         delete_image_ID("disk_tmp");
