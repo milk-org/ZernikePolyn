@@ -9,7 +9,7 @@
 // module default short name
 // all CLI calls to this module functions will be <shortname>.<funcname>
 // if set to "", then calls use <funcname>
-#define MODULE_SHORTNAME_DEFAULT ""
+#define MODULE_SHORTNAME_DEFAULT "zern"
 
 // Module short description
 #define MODULE_DESCRIPTION       "Create and fit Zernike polynomials"
@@ -141,27 +141,25 @@ static errno_t init_module_CLI()
     Zernike.init = 0;
     Zernike.ZERMAX = 5000;
 
-    strcpy(data.cmd[data.NBcmd].key, "mkzer");
-    strcpy(data.cmd[data.NBcmd].module, __FILE__);
-    data.cmd[data.NBcmd].fp = mk_zer_cli;
-    strcpy(data.cmd[data.NBcmd].info, "create Zernike polynomial");
-    strcpy(data.cmd[data.NBcmd].syntax,
-           "<output image> <size> <zern index> <rpix>");
-    strcpy(data.cmd[data.NBcmd].example, "mkzer z43 512 43 100.0");
-    strcpy(data.cmd[data.NBcmd].Ccall,
-           "mk_zer(const char *ID_name, long SIZE, long zer_nb, float rpix)");
-    data.NBcmd++;
+
+    RegisterCLIcommand(
+        "mkzer",
+        __FILE__,
+        mk_zer_cli,
+        "create Zernike polynomial",
+        "<output image> <size> <zern index> <rpix>",
+        "mkzer z43 512 43 100.0",
+        "mk_zer(const char *ID_name, long SIZE, long zer_nb, float rpix)");
 
 
-    strcpy(data.cmd[data.NBcmd].key, "rmcpiston");
-    strcpy(data.cmd[data.NBcmd].module, __FILE__);
-    data.cmd[data.NBcmd].fp = ZERNIKEPOLYN_rmPiston_cli;
-    strcpy(data.cmd[data.NBcmd].info, "remove piston term from WF cube");
-    strcpy(data.cmd[data.NBcmd].syntax, "<WF cube> <aperture mask>");
-    strcpy(data.cmd[data.NBcmd].example, "rmcpiston wfc mask");
-    strcpy(data.cmd[data.NBcmd].Ccall,
-           "long ZERNIKEPOLYN_rmPiston(const char *ID_name, const char *IDmask_name);");
-    data.NBcmd++;
+    RegisterCLIcommand(
+        "rmcpiston",
+        __FILE__,
+        ZERNIKEPOLYN_rmPiston_cli,
+        "remove piston term from WF cube",
+        "<WF cube> <aperture mask>",
+        "rmcpiston wfc mask",
+        "long ZERNIKEPOLYN_rmPiston(const char *ID_name, const char *IDmask_name);");
 
     // add atexit functions here
 
@@ -820,8 +818,12 @@ double get_zer(const char *ID_name, long zer_nb, double radius)
 
 
 
-double get_zer_crop(const char *ID_name, long zer_nb, double radius,
-                    double radius1)
+double get_zer_crop(
+    const char *ID_name,
+    long zer_nb,
+    double radius,
+    double radius1
+)
 {
     double value;
     long SIZE;
@@ -862,11 +864,13 @@ double get_zer_crop(const char *ID_name, long zer_nb, double radius,
 
 
 
-int get_zerns(const char *ID_name, long max_zer, double radius)
+int get_zerns(
+    const char *ID_name,
+    long max_zer,
+    double radius
+)
 {
-    long i;
-
-    for(i = 0; i < max_zer; i++)
+    for(long i = 0; i < max_zer; i++)
     {
         printf("%ld %e\n", i, get_zer(ID_name, i, radius));
     }
@@ -876,12 +880,14 @@ int get_zerns(const char *ID_name, long max_zer, double radius)
 
 
 
-int get_zern_array(const char *ID_name, long max_zer, double radius,
-                   double *array)
+int get_zern_array(
+    const char *ID_name,
+    long max_zer,
+    double radius,
+    double *array
+)
 {
-    long i;
-
-    for(i = 0; i < max_zer; i++)
+    for(long i = 0; i < max_zer; i++)
     {
         double tmp;
 
@@ -895,17 +901,20 @@ int get_zern_array(const char *ID_name, long max_zer, double radius,
 
 
 
-int remove_zerns(const char *ID_name, const char *ID_name_out, int max_zer,
-                 double radius)
+int remove_zerns(
+    const char *ID_name,
+    const char *ID_name_out,
+    int max_zer,
+    double radius
+)
 {
-    int i;
     imageID ID;
     long SIZE;
 
     copy_image_ID(ID_name, ID_name_out, 0);
     ID = image_ID(ID_name);
     SIZE = data.image[ID].md[0].size[0];
-    for(i = 0; i < max_zer; i++)
+    for(int i = 0; i < max_zer; i++)
     {
         double coeff;
 
@@ -924,7 +933,10 @@ int remove_zerns(const char *ID_name, const char *ID_name_out, int max_zer,
 
 
 
-long ZERNIKEPOLYN_rmPiston(const char *ID_name, const char *IDmask_name)
+long ZERNIKEPOLYN_rmPiston(
+    const char *ID_name,
+    const char *IDmask_name
+)
 {
     imageID ID, IDmask;
     long xsize, ysize, zsize, xysize;
@@ -964,7 +976,11 @@ long ZERNIKEPOLYN_rmPiston(const char *ID_name, const char *IDmask_name)
 
 
 
-int remove_TTF(const char *ID_name, const char *ID_name_out, double radius)
+int remove_TTF(
+    const char *ID_name,
+    const char *ID_name_out,
+    double radius
+)
 {
     int i;
     double coeff;
@@ -1008,8 +1024,13 @@ int remove_TTF(const char *ID_name, const char *ID_name_out, double radius)
 
 
 
-double fit_zer(const char *ID_name, long maxzer_nb, double radius,
-               double *zvalue, double *residual)
+double fit_zer(
+    const char *ID_name,
+    long maxzer_nb,
+    double radius,
+    double *zvalue,
+    double *residual
+)
 {
     long SIZE;
     imageID ID, IDZ, IDdisk;
