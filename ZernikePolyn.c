@@ -506,7 +506,7 @@ imageID mk_zer_unbounded(
         double coeff_norm;
 
         make_disk("disk_tmp", SIZE, SIZE, SIZE / 2, SIZE / 2, rpix);
-        coeff_norm = sqrt(ssquare("disk_tmp") / ssquare(ID_name));
+        coeff_norm = sqrt(arith_image_sumsquare("disk_tmp") / arith_image_sumsquare(ID_name));
         arith_image_cstmult_inplace(ID_name, coeff_norm);
         delete_image_ID("disk_tmp");
     }
@@ -574,7 +574,7 @@ imageID mk_zer_unbounded1(
     if(zer_nb > 0)
     {
         make_disk("disk_tmp", SIZE, SIZE, SIZE / 2, SIZE / 2, rpix);
-        coeff_norm = sqrt(ssquare("disk_tmp") / ssquare(ID_name));
+        coeff_norm = sqrt(arith_image_sumsquare("disk_tmp") / arith_image_sumsquare(ID_name));
         arith_image_cstmult_inplace(ID_name, coeff_norm);
         delete_image_ID("disk_tmp");
     }
