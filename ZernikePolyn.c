@@ -14,9 +14,6 @@
 // Module short description
 #define MODULE_DESCRIPTION       "Create and fit Zernike polynomials"
 
-// Application to which module belongs
-#define MODULE_APPLICATION       "milk"
-
 
 
 
