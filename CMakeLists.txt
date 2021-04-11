@@ -2,6 +2,8 @@
 set(LIBNAME "milkZernikePolyn")
 set(SRCNAME "ZernikePolyn")
 
+message("")
+message(" SRCNAME = ${SRCNAME} -> LIBNAME = ${LIBNAME}")
 
 set(SOURCEFILES
 	${SRCNAME}.c)
