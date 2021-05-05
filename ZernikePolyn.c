@@ -198,9 +198,24 @@ int zernike_init()
         fflush(stdout);
 
         Zernike.Zer_n = (long *) malloc(Zernike.ZERMAX * sizeof(long));
+        if(Zernike.Zer_n == NULL) {
+            PRINT_ERROR("malloc returns NULL pointer");
+            abort();
+        }
+
         Zernike.Zer_m = (long *) malloc(Zernike.ZERMAX * sizeof(long));
-        Zernike.R_array = (double *) malloc(Zernike.ZERMAX * Zernike.ZERMAX * sizeof(
-                                                double));
+        if(Zernike.Zer_m == NULL) {
+            PRINT_ERROR("malloc returns NULL pointer");
+            abort();
+        }
+
+
+        Zernike.R_array = (double *) malloc(Zernike.ZERMAX * Zernike.ZERMAX * sizeof(double));
+        if(Zernike.R_array == NULL) {
+            PRINT_ERROR("malloc returns NULL pointer");
+            abort();
+        }
+
 
         if((Zernike.Zer_n == NULL) || (Zernike.Zer_m == NULL)
                 || (Zernike.R_array == NULL))
@@ -619,7 +634,16 @@ errno_t mk_zer_series(
     ID = image_ID("ztmp");
 
     r = (double *) malloc(SIZE * SIZE * sizeof(double));
+    if(r == NULL) {
+        PRINT_ERROR("malloc returns NULL pointer");
+        abort();
+    }
+
     theta = (double *) malloc(SIZE * SIZE * sizeof(double));
+    if(theta == NULL) {
+        PRINT_ERROR("malloc returns NULL pointer");
+        abort();
+    }
 
     if((r == NULL) || (theta == NULL))
     {
@@ -714,12 +738,17 @@ imageID mk_zer_seriescube(
     //    ID = image_ID("ztmp");
 
     r = (double *) malloc(SIZE * SIZE * sizeof(double));
-    theta = (double *) malloc(SIZE * SIZE * sizeof(double));
-
-    if((r == NULL) || (theta == NULL))
-    {
-        printf("error in memory allocation !!!\n");
+    if(r == NULL) {
+        PRINT_ERROR("malloc returns NULL pointer");
+        abort();
     }
+
+    theta = (double *) malloc(SIZE * SIZE * sizeof(double));
+    if(theta == NULL) {
+        PRINT_ERROR("malloc returns NULL pointer");
+        abort();
+    }
+
 
     /* let's compute the polar coordinates */
     for(ii = 0; ii < SIZE; ii++)
