@@ -443,7 +443,7 @@ imageID mk_zer(
         coeff_norm = sqrt(arith_image_sumsquare("disk_tmp") / ss);
         //	printf("coeff = %f\n", coeff_norm);
         arith_image_cstmult_inplace(ID_name, coeff_norm);
-        delete_image_ID("disk_tmp");
+        delete_image_ID("disk_tmp", DELETE_IMAGE_ERRMODE_WARNING);
     }
 
 
@@ -520,7 +520,7 @@ imageID mk_zer_unbounded(
         make_disk("disk_tmp", SIZE, SIZE, SIZE / 2, SIZE / 2, rpix);
         coeff_norm = sqrt(arith_image_sumsquare("disk_tmp") / arith_image_sumsquare(ID_name));
         arith_image_cstmult_inplace(ID_name, coeff_norm);
-        delete_image_ID("disk_tmp");
+        delete_image_ID("disk_tmp", DELETE_IMAGE_ERRMODE_WARNING);
     }
 
     if(zer_nb == 0)
@@ -588,7 +588,7 @@ imageID mk_zer_unbounded1(
         make_disk("disk_tmp", SIZE, SIZE, SIZE / 2, SIZE / 2, rpix);
         coeff_norm = sqrt(arith_image_sumsquare("disk_tmp") / arith_image_sumsquare(ID_name));
         arith_image_cstmult_inplace(ID_name, coeff_norm);
-        delete_image_ID("disk_tmp");
+        delete_image_ID("disk_tmp", DELETE_IMAGE_ERRMODE_WARNING);
     }
 
     if(zer_nb == 0)
@@ -700,7 +700,7 @@ errno_t mk_zer_series(
         save_fl_fits("ztmp", fname);
     }
 
-    delete_image_ID("ztmp");
+    delete_image_ID("ztmp", DELETE_IMAGE_ERRMODE_WARNING);
 
     free(r);
     free(theta);
@@ -834,9 +834,9 @@ double get_zer(const char *ID_name, long zer_nb, double radius)
     arith_image_mult(fname1, ID_name, "mult_tmp");
     value = arith_image_total("mult_tmp") / arith_image_total("disktmp");
     /* printf("value is %e\n",value);*/
-    delete_image_ID("disktmp");
+    delete_image_ID("disktmp", DELETE_IMAGE_ERRMODE_WARNING);
     /*  delete_image_ID("zernike_tmp");*/
-    delete_image_ID("mult_tmp");
+    delete_image_ID("mult_tmp", DELETE_IMAGE_ERRMODE_WARNING);
 
     return(value);
 }
@@ -881,10 +881,10 @@ double get_zer_crop(
     arith_image_mult("mult_tmp", "disktmp", "mult_tmp1");
     value = arith_image_total("mult_tmp1") / arith_image_total("disktmp");
     /* printf("value is %e\n",value);*/
-    delete_image_ID("disktmp");
+    delete_image_ID("disktmp", DELETE_IMAGE_ERRMODE_WARNING);
     /*  delete_image_ID("zernike_tmp");*/
-    delete_image_ID("mult_tmp");
-    delete_image_ID("mult_tmp1");
+    delete_image_ID("mult_tmp", DELETE_IMAGE_ERRMODE_WARNING);
+    delete_image_ID("mult_tmp1", DELETE_IMAGE_ERRMODE_WARNING);
 
     return(value);
 }
@@ -949,10 +949,10 @@ int remove_zerns(
         coeff = -1.0 * get_zer(ID_name, i, radius);
         arith_image_cstmult_inplace("zer_tmp", coeff);
         arith_image_add(ID_name_out, "zer_tmp", "tmp");
-        delete_image_ID(ID_name_out);
+        delete_image_ID(ID_name_out, DELETE_IMAGE_ERRMODE_WARNING);
         copy_image_ID("tmp", ID_name_out, 0);
-        delete_image_ID("tmp");
-        delete_image_ID("zer_tmp");
+        delete_image_ID("tmp", DELETE_IMAGE_ERRMODE_WARNING);
+        delete_image_ID("zer_tmp", DELETE_IMAGE_ERRMODE_WARNING);
     }
     return(0);
 }
@@ -1027,21 +1027,21 @@ int remove_TTF(
             mk_zer("zer_tmp", SIZE, i, radius);
             arith_image_mult("zer_tmp", ID_name, "mult_tmp");
             //coeff = arith_image_total("mult_tmp")/arith_image_total("disktmpttf");
-            delete_image_ID("mult_tmp");
+            delete_image_ID("mult_tmp", DELETE_IMAGE_ERRMODE_WARNING);
             coeff = -1.0 * get_zer(ID_name, i, radius);
             data.DOUBLEARRAY[i] = coeff;
             mk_zer("zer_tmpu", SIZE, i, radius);
             arith_image_cstmult_inplace("zer_tmpu", coeff);
             //	  basic_add(ID_name_out,"zer_tmpu","tmp",0,0);
             arith_image_add(ID_name_out, "zer_tmpu", "tmp");
-            delete_image_ID(ID_name_out);
+            delete_image_ID(ID_name_out, DELETE_IMAGE_ERRMODE_WARNING);
             copy_image_ID("tmp", ID_name_out, 0);
-            delete_image_ID("tmp");
-            delete_image_ID("zer_tmp");
-            delete_image_ID("zer_tmpu");
+            delete_image_ID("tmp", DELETE_IMAGE_ERRMODE_WARNING);
+            delete_image_ID("zer_tmp", DELETE_IMAGE_ERRMODE_WARNING);
+            delete_image_ID("zer_tmpu", DELETE_IMAGE_ERRMODE_WARNING);
         }
     }
-    delete_image_ID("disktmpttf");
+    delete_image_ID("disktmpttf", DELETE_IMAGE_ERRMODE_WARNING);
 
     return(0);
 }
@@ -1148,7 +1148,7 @@ double fit_zer(
         }
     }
 
-    delete_image_ID("dtmp");
+    delete_image_ID("dtmp", DELETE_IMAGE_ERRMODE_WARNING);
 
     return(residualf);
 }
