@@ -822,7 +822,8 @@ double get_zer(const char *ID_name, long zer_nb, double radius)
     {
         if(file_exists(fname) == 1)
         {
-            load_fits(fname, fname1, 1);
+            imageID IDtmp;
+            load_fits(fname, fname1, 1, &IDtmp);
         }
         else
         {
@@ -867,7 +868,8 @@ double get_zer_crop(
     {
         if(file_exists(fname) == 1)
         {
-            load_fits(fname, fname1, 1);
+            imageID IDtmp;
+            load_fits(fname, fname1, 1, &IDtmp);
         }
         else
         {
@@ -1100,7 +1102,7 @@ double fit_zer(
             {
                 if(file_exists(fname) == 1)
                 {
-                    IDZ = load_fits(fname, fname1, 1);
+                    load_fits(fname, fname1, 1, &IDZ);
                 }
                 else
                 {
