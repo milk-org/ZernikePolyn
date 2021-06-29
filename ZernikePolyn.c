@@ -404,8 +404,7 @@ imageID mk_zer(
     n = Zernike.Zer_n[zer_nb];
     m = Zernike.Zer_m[zer_nb];
     printf("Z = %ld    :  n = %ld, m = %ld\n", zer_nb, n, m);
-    create_2Dimage_ID(ID_name, SIZE, SIZE);
-    ID = image_ID(ID_name);
+    create_2Dimage_ID(ID_name, SIZE, SIZE, &ID);
 
     /* let's compute the polar coordinates */
     ss = 0.0;
@@ -499,8 +498,7 @@ imageID mk_zer_unbounded(
     n = Zernike.Zer_n[zer_nb];
     m = Zernike.Zer_m[zer_nb];
     printf("Z = %ld    :  n = %ld, m = %ld\n", zer_nb, n, m);
-    create_2Dimage_ID(ID_name, SIZE, SIZE);
-    ID = image_ID(ID_name);
+    create_2Dimage_ID(ID_name, SIZE, SIZE, &ID);
 
     /* let's compute the polar coordinates */
     for(ii = 0; ii < SIZE; ii++)
@@ -566,8 +564,7 @@ imageID mk_zer_unbounded1(
     n = Zernike.Zer_n[zer_nb];
     m = Zernike.Zer_m[zer_nb];
     printf("Z = %ld    :  n = %ld, m = %ld\n", zer_nb, n, m);
-    create_2Dimage_ID(ID_name, SIZE, SIZE);
-    ID = image_ID(ID_name);
+    create_2Dimage_ID(ID_name, SIZE, SIZE, &ID);
 
     /* let's compute the polar coordinates */
     for(ii = 0; ii < SIZE; ii++)
@@ -630,8 +627,7 @@ errno_t mk_zer_series(
         zernike_init();
     }
 
-    create_2Dimage_ID("ztmp", SIZE, SIZE);
-    ID = image_ID("ztmp");
+    create_2Dimage_ID("ztmp", SIZE, SIZE, &ID);
 
     r = (double *) malloc(SIZE * SIZE * sizeof(double));
     if(r == NULL) {
@@ -734,7 +730,7 @@ imageID mk_zer_seriescube(
         zernike_init();
     }
 
-    ID = create_3Dimage_ID(ID_namec, SIZE, SIZE, zer_nb);
+     create_3Dimage_ID(ID_namec, SIZE, SIZE, zer_nb, &ID);
     //    ID = image_ID("ztmp");
 
     r = (double *) malloc(SIZE * SIZE * sizeof(double));
