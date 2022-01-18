@@ -12,44 +12,34 @@
 #define MODULE_SHORTNAME_DEFAULT "zern"
 
 // Module short description
-#define MODULE_DESCRIPTION       "Create and fit Zernike polynomials"
+#define MODULE_DESCRIPTION "Create and fit Zernike polynomials"
 
-
-
-
-
-
-
-
-#include <stdint.h>
-#include <string.h>
-#include <stdlib.h>
 #include <math.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
+#include <fitsio.h> /* required by every program that uses CFITSIO  */
 
-
-#include <fitsio.h>  /* required by every program that uses CFITSIO  */
-
-#include "CommandLineInterface/CLIcore.h"
-#include "COREMOD_memory/COREMOD_memory.h"
-#include "COREMOD_iofits/COREMOD_iofits.h"
 #include "COREMOD_arith/COREMOD_arith.h"
+#include "COREMOD_iofits/COREMOD_iofits.h"
+#include "COREMOD_memory/COREMOD_memory.h"
+#include "CommandLineInterface/CLIcore.h"
 
 #include "image_gen/image_gen.h"
 
 #include "ZernikePolyn/ZernikePolyn.h"
 
-#define SWAP(x,y)  tmp=(x);x=(y);y=tmp;
+#define SWAP(x, y)                                                                                                     \
+    tmp = (x);                                                                                                         \
+    x = (y);                                                                                                           \
+    y = tmp;
 
 #define PI 3.14159265358979323846264338328
 
 //extern DATA data;
 
-
 ZERNIKE Zernike;
-
-
-
 
 /* ================================================================== */
 /* ================================================================== */
@@ -62,15 +52,11 @@ ZERNIKE Zernike;
 //
 INIT_MODULE_LIB(ZernikePolyn)
 
-
 /* ================================================================== */
 /* ================================================================== */
 /*            COMMAND LINE INTERFACE (CLI) FUNCTIONS                  */
 /* ================================================================== */
 /* ================================================================== */
-
-
-
 
 // CLI commands
 //
@@ -83,19 +69,12 @@ INIT_MODULE_LIB(ZernikePolyn)
 
 errno_t mk_zer_cli()
 {
-    if(
-        CLI_checkarg(1, CLIARG_STR_NOT_IMG) +
-        CLI_checkarg(2, CLIARG_LONG) +
-        CLI_checkarg(3, CLIARG_LONG) +
-        CLI_checkarg(4, CLIARG_FLOAT)
-        == 0)
+    if (CLI_checkarg(1, CLIARG_STR_NOT_IMG) + CLI_checkarg(2, CLIARG_LONG) + CLI_checkarg(3, CLIARG_LONG) +
+            CLI_checkarg(4, CLIARG_FLOAT) ==
+        0)
     {
-        mk_zer(
-            data.cmdargtoken[1].val.string,
-            data.cmdargtoken[2].val.numl,
-            data.cmdargtoken[3].val.numl,
-            data.cmdargtoken[4].val.numf
-        );
+        mk_zer(data.cmdargtoken[1].val.string, data.cmdargtoken[2].val.numl, data.cmdargtoken[3].val.numl,
+               data.cmdargtoken[4].val.numf);
 
         return CLICMD_SUCCESS;
     }
@@ -104,21 +83,12 @@ errno_t mk_zer_cli()
         return CLICMD_INVALID_ARG;
     }
 }
-
-
-
 
 errno_t ZERNIKEPOLYN_rmPiston_cli()
 {
-    if(
-        CLI_checkarg(1, CLIARG_IMG) +
-        CLI_checkarg(2, CLIARG_IMG)
-        == 0)
+    if (CLI_checkarg(1, CLIARG_IMG) + CLI_checkarg(2, CLIARG_IMG) == 0)
     {
-        ZERNIKEPOLYN_rmPiston(
-            data.cmdargtoken[1].val.string,
-            data.cmdargtoken[2].val.string
-        );
+        ZERNIKEPOLYN_rmPiston(data.cmdargtoken[1].val.string, data.cmdargtoken[2].val.string);
 
         return CLICMD_SUCCESS;
     }
@@ -127,9 +97,6 @@ errno_t ZERNIKEPOLYN_rmPiston_cli()
         return CLICMD_INVALID_ARG;
     }
 }
-
-
-
 
 static errno_t init_module_CLI()
 {
@@ -137,36 +104,18 @@ static errno_t init_module_CLI()
     Zernike.init = 0;
     Zernike.ZERMAX = 5000;
 
+    RegisterCLIcommand("mkzer", __FILE__, mk_zer_cli, "create Zernike polynomial",
+                       "<output image> <size> <zern index> <rpix>", "mkzer z43 512 43 100.0",
+                       "mk_zer(const char *ID_name, long SIZE, long zer_nb, float rpix)");
 
-    RegisterCLIcommand(
-        "mkzer",
-        __FILE__,
-        mk_zer_cli,
-        "create Zernike polynomial",
-        "<output image> <size> <zern index> <rpix>",
-        "mkzer z43 512 43 100.0",
-        "mk_zer(const char *ID_name, long SIZE, long zer_nb, float rpix)");
-
-
-    RegisterCLIcommand(
-        "rmcpiston",
-        __FILE__,
-        ZERNIKEPOLYN_rmPiston_cli,
-        "remove piston term from WF cube",
-        "<WF cube> <aperture mask>",
-        "rmcpiston wfc mask",
-        "long ZERNIKEPOLYN_rmPiston(const char *ID_name, const char *IDmask_name);");
+    RegisterCLIcommand("rmcpiston", __FILE__, ZERNIKEPOLYN_rmPiston_cli, "remove piston term from WF cube",
+                       "<WF cube> <aperture mask>", "rmcpiston wfc mask",
+                       "long ZERNIKEPOLYN_rmPiston(const char *ID_name, const char *IDmask_name);");
 
     // add atexit functions here
 
     return RETURN_SUCCESS;
-
 }
-
-
-
-
-
 
 double fact(int n)
 {
@@ -174,22 +123,18 @@ double fact(int n)
     double value;
 
     value = 1;
-    for(i = 1; i < n + 1; i++)
+    for (i = 1; i < n + 1; i++)
     {
         value = value * i;
     }
 
-    return(value);
+    return (value);
 }
-
-
-
-
 
 int zernike_init()
 {
 
-    if(Zernike.init != 1)
+    if (Zernike.init != 1)
     {
         long j, n, m, s;
         long ii, jj;
@@ -197,35 +142,34 @@ int zernike_init()
         printf("ZERMAX= %ld\n", Zernike.ZERMAX);
         fflush(stdout);
 
-        Zernike.Zer_n = (long *) malloc(Zernike.ZERMAX * sizeof(long));
-        if(Zernike.Zer_n == NULL) {
+        Zernike.Zer_n = (long *)malloc(Zernike.ZERMAX * sizeof(long));
+        if (Zernike.Zer_n == NULL)
+        {
             PRINT_ERROR("malloc returns NULL pointer");
             abort();
         }
 
-        Zernike.Zer_m = (long *) malloc(Zernike.ZERMAX * sizeof(long));
-        if(Zernike.Zer_m == NULL) {
+        Zernike.Zer_m = (long *)malloc(Zernike.ZERMAX * sizeof(long));
+        if (Zernike.Zer_m == NULL)
+        {
             PRINT_ERROR("malloc returns NULL pointer");
             abort();
         }
 
-
-        Zernike.R_array = (double *) malloc(Zernike.ZERMAX * Zernike.ZERMAX * sizeof(double));
-        if(Zernike.R_array == NULL) {
+        Zernike.R_array = (double *)malloc(Zernike.ZERMAX * Zernike.ZERMAX * sizeof(double));
+        if (Zernike.R_array == NULL)
+        {
             PRINT_ERROR("malloc returns NULL pointer");
             abort();
         }
 
-
-        if((Zernike.Zer_n == NULL) || (Zernike.Zer_m == NULL)
-                || (Zernike.R_array == NULL))
+        if ((Zernike.Zer_n == NULL) || (Zernike.Zer_m == NULL) || (Zernike.R_array == NULL))
         {
             printf("error in memory allocation in zernike_init !!!\n");
         }
 
-
         /* Zer_n and Zer_m are initialised to 0 */
-        for(ii = 0; ii < Zernike.ZERMAX; ii++)
+        for (ii = 0; ii < Zernike.ZERMAX; ii++)
         {
             Zernike.Zer_n[ii] = 0;
             Zernike.Zer_m[ii] = 0;
@@ -236,13 +180,13 @@ int zernike_init()
         n = 0;
         m = 0;
 
-        while(j < Zernike.ZERMAX)
+        while (j < Zernike.ZERMAX)
         {
             Zernike.Zer_n[j] = n;
             Zernike.Zer_m[j] = m;
             j++;
             m += 2;
-            if(m > n)
+            if (m > n)
             {
                 n++;
                 m = -n;
@@ -250,52 +194,41 @@ int zernike_init()
         }
 
         /* R_array is initialised */
-        for(ii = 0; ii < Zernike.ZERMAX; ii++)
-            for(jj = 0; jj < Zernike.ZERMAX; jj++)
+        for (ii = 0; ii < Zernike.ZERMAX; ii++)
+            for (jj = 0; jj < Zernike.ZERMAX; jj++)
             {
                 Zernike.R_array[jj * Zernike.ZERMAX + ii] = 0;
             }
 
         /* now the R_array is computed */
-        for(j = 1; j < Zernike.ZERMAX; j++)
+        for (j = 1; j < Zernike.ZERMAX; j++)
         {
             m = labs(Zernike.Zer_m[j]);
-            for(s = 0; s < ((int)(0.5 * (Zernike.Zer_n[j] - m) + 1)); s++)
+            for (s = 0; s < ((int)(0.5 * (Zernike.Zer_n[j] - m) + 1)); s++)
             {
-                Zernike.R_array[j * Zernike.ZERMAX + Zernike.Zer_n[j] - 2 * s] = pow(-1,
-                        s) * fact(Zernike.Zer_n[j] - s) / fact(s) / fact((Zernike.Zer_n[j] + m) / 2 - s)
-                        / fact((Zernike.Zer_n[j] - m) / 2 - s);
+                Zernike.R_array[j * Zernike.ZERMAX + Zernike.Zer_n[j] - 2 * s] =
+                    pow(-1, s) * fact(Zernike.Zer_n[j] - s) / fact(s) / fact((Zernike.Zer_n[j] + m) / 2 - s) /
+                    fact((Zernike.Zer_n[j] - m) / 2 - s);
             }
         }
 
-        for(ii = 0; ii < Zernike.ZERMAX; ii++)
-            for(jj = 0; jj < Zernike.ZERMAX; jj++)
+        for (ii = 0; ii < Zernike.ZERMAX; ii++)
+            for (jj = 0; jj < Zernike.ZERMAX; jj++)
             {
                 Zernike.R_array[jj * Zernike.ZERMAX + ii] *= sqrt(Zernike.Zer_n[jj] + 1);
             }
 
         /* the zernikes index are computed */
 
-
         Zernike.init = 1;
     }
 
-    return(0);
+    return (0);
 }
 
+long Zernike_n(long i) { return (Zernike.Zer_n[i]); }
 
-
-
-long Zernike_n(long i)
-{
-    return(Zernike.Zer_n[i]);
-}
-
-long Zernike_m(long i)
-{
-    return(Zernike.Zer_m[i]);
-}
-
+long Zernike_m(long i) { return (Zernike.Zer_m[i]); }
 
 double Zernike_value(long j, double r, double PA)
 {
@@ -308,12 +241,12 @@ double Zernike_value(long j, double r, double PA)
     m = Zernike.Zer_m[j];
     s2 = sqrt(2.0);
 
-    if(m == 0)
+    if (m == 0)
     {
-        for(i = 0; i < n; i++)
+        for (i = 0; i < n; i++)
         {
             tmp = Zernike.R_array[j * Zernike.ZERMAX + i];
-            if(tmp != 0)
+            if (tmp != 0)
             {
                 value += pow(r, i) * tmp;
             }
@@ -321,12 +254,12 @@ double Zernike_value(long j, double r, double PA)
     }
     else
     {
-        for(i = 0; i < n; i++)
+        for (i = 0; i < n; i++)
         {
             tmp = Zernike.R_array[j * Zernike.ZERMAX + i];
-            if(tmp != 0)
+            if (tmp != 0)
             {
-                if(m < 0)
+                if (m < 0)
                 {
                     value -= tmp * s2 * pow(r, i) * sin(m * PA);
                 }
@@ -338,17 +271,10 @@ double Zernike_value(long j, double r, double PA)
         }
     }
 
-    return(value);
+    return (value);
 }
 
-
-
-imageID mk_zer(
-    const char *ID_name,
-    long        SIZE,
-    long        zer_nb,
-    float      rpix
-)
+imageID mk_zer(const char *ID_name, long SIZE, long zer_nb, float rpix)
 {
     long ii, jj;
     double r, theta;
@@ -364,39 +290,36 @@ imageID mk_zer(
     double x, y;
 
     ID = variable_ID("ZEXTENDc1");
-    if(ID != -1)
+    if (ID != -1)
     {
         coeffextend1 = data.variable[ID].value.f;
         printf("ZEXTENDc1 = %f\n", coeffextend1);
     }
 
     ID = variable_ID("ZEXTENDc2");
-    if(ID != -1)
+    if (ID != -1)
     {
         coeffextend2 = data.variable[ID].value.f;
         printf("ZEXTENDc2 = %f\n", coeffextend2);
     }
 
-
     ID = variable_ID("Zxoffset");
-    if(ID != -1)
+    if (ID != -1)
     {
         xoffset = data.variable[ID].value.f;
         printf("Zxoffset = %f\n", xoffset);
     }
     ID = variable_ID("Zyoffset");
-    if(ID != -1)
+    if (ID != -1)
     {
         yoffset = data.variable[ID].value.f;
         printf("Zyoffset = %f\n", yoffset);
     }
 
-
-
     naxes[0] = SIZE;
     naxes[1] = SIZE;
 
-    if(Zernike.init == 0)
+    if (Zernike.init == 0)
     {
         zernike_init();
     }
@@ -408,33 +331,32 @@ imageID mk_zer(
 
     /* let's compute the polar coordinates */
     ss = 0.0;
-    for(ii = 0; ii < SIZE; ii++)
-        for(jj = 0; jj < SIZE; jj++)
+    for (ii = 0; ii < SIZE; ii++)
+        for (jj = 0; jj < SIZE; jj++)
         {
             x = 1.0 * (ii - SIZE / 2) - xoffset;
             y = 1.0 * (jj - SIZE / 2) - yoffset;
 
             r = sqrt(x * x + y * y) / rpix;
             theta = atan2(y, x);
-            if(r < 1.0)
+            if (r < 1.0)
             {
                 data.image[ID].array.F[jj * naxes[0] + ii] = Zernike_value(zer_nb, r, theta);
                 //printf("%f\n", Zernike_value(zer_nb,r,theta));
-                ss += data.image[ID].array.F[jj * naxes[0] + ii] * data.image[ID].array.F[jj *
-                        naxes[0] + ii];
+                ss += data.image[ID].array.F[jj * naxes[0] + ii] * data.image[ID].array.F[jj * naxes[0] + ii];
             }
-            else if(coeffextend1 > 0)
+            else if (coeffextend1 > 0)
             {
                 r = 1.0 + (r - 1.0) / (1.0 + coeffextend1 * (r - 1.0));
                 data.image[ID].array.F[jj * naxes[0] + ii] = Zernike_value(zer_nb, 1.0, theta);
-                data.image[ID].array.F[jj * naxes[0] + ii] *= exp(-pow((r - 1.0) /
-                        (rpix * coeffextend2), coeffextend3));
+                data.image[ID].array.F[jj * naxes[0] + ii] *=
+                    exp(-pow((r - 1.0) / (rpix * coeffextend2), coeffextend3));
                 //	data.image[ID].array.F[jj*naxes[0]+ii] = r;
                 //printf("%f %f\n", Zernike_value(zer_nb, 1.0, theta), exp(-pow((r-1.0)/(rpix*coeffextend2), coeffextend3)));
             }
         }
 
-    if(zer_nb > 0)
+    if (zer_nb > 0)
     {
         double coeff_norm;
 
@@ -445,17 +367,15 @@ imageID mk_zer(
         delete_image_ID("disk_tmp", DELETE_IMAGE_ERRMODE_WARNING);
     }
 
-
-    if(zer_nb == 0)
+    if (zer_nb == 0)
     {
-        for(ii = 0; ii < SIZE; ii++)
-            for(jj = 0; jj < SIZE; jj++)
+        for (ii = 0; ii < SIZE; ii++)
+            for (jj = 0; jj < SIZE; jj++)
             {
-                r = sqrt((ii - SIZE / 2) * (ii - SIZE / 2) + (jj - SIZE / 2) *
-                         (jj - SIZE / 2)) / rpix;
-                if(r > 1.0)
+                r = sqrt((ii - SIZE / 2) * (ii - SIZE / 2) + (jj - SIZE / 2) * (jj - SIZE / 2)) / rpix;
+                if (r > 1.0)
                 {
-                    if(coeffextend1 < 0)
+                    if (coeffextend1 < 0)
                     {
                         data.image[ID].array.F[jj * naxes[0] + ii] = 0.0;
                     }
@@ -467,19 +387,11 @@ imageID mk_zer(
             }
     }
 
-
     return ID;
 }
 
-
-
 // continue Zernike exp. beyond nominal radius, using the same polynomial expression
-imageID mk_zer_unbounded(
-    const char *ID_name,
-    long        SIZE,
-    long        zer_nb,
-    float       rpix
-)
+imageID mk_zer_unbounded(const char *ID_name, long SIZE, long zer_nb, float rpix)
 {
     long ii, jj;
     double r, theta;
@@ -490,7 +402,7 @@ imageID mk_zer_unbounded(
     naxes[0] = SIZE;
     naxes[1] = SIZE;
 
-    if(Zernike.init == 0)
+    if (Zernike.init == 0)
     {
         zernike_init();
     }
@@ -501,17 +413,16 @@ imageID mk_zer_unbounded(
     create_2Dimage_ID(ID_name, SIZE, SIZE, &ID);
 
     /* let's compute the polar coordinates */
-    for(ii = 0; ii < SIZE; ii++)
-        for(jj = 0; jj < SIZE; jj++)
+    for (ii = 0; ii < SIZE; ii++)
+        for (jj = 0; jj < SIZE; jj++)
         {
-            r = sqrt((ii - SIZE / 2) * (ii - SIZE / 2) + (jj - SIZE / 2) *
-                     (jj - SIZE / 2)) / rpix;
+            r = sqrt((ii - SIZE / 2) * (ii - SIZE / 2) + (jj - SIZE / 2) * (jj - SIZE / 2)) / rpix;
             theta = atan2((jj - SIZE / 2), (ii - SIZE / 2));
             //	  if(r<1.0)
             data.image[ID].array.F[jj * naxes[0] + ii] = Zernike_value(zer_nb, r, theta);
         }
 
-    if(zer_nb > 0)
+    if (zer_nb > 0)
     {
         double coeff_norm;
 
@@ -521,10 +432,10 @@ imageID mk_zer_unbounded(
         delete_image_ID("disk_tmp", DELETE_IMAGE_ERRMODE_WARNING);
     }
 
-    if(zer_nb == 0)
+    if (zer_nb == 0)
     {
-        for(ii = 0; ii < SIZE; ii++)
-            for(jj = 0; jj < SIZE; jj++)
+        for (ii = 0; ii < SIZE; ii++)
+            for (jj = 0; jj < SIZE; jj++)
             {
                 //r = sqrt((ii-SIZE/2)*(ii-SIZE/2)+(jj-SIZE/2)*(jj-SIZE/2))/rpix;
                 //    if(r<1.0)
@@ -535,16 +446,8 @@ imageID mk_zer_unbounded(
     return ID;
 }
 
-
-
-
 // continue Zernike exp. beyond nominal radius, using the r=1 for r>1
-imageID mk_zer_unbounded1(
-    const char *ID_name,
-    long        SIZE,
-    long        zer_nb,
-    float       rpix
-)
+imageID mk_zer_unbounded1(const char *ID_name, long SIZE, long zer_nb, float rpix)
 {
     long ii, jj;
     double r, theta;
@@ -556,7 +459,7 @@ imageID mk_zer_unbounded1(
     naxes[0] = SIZE;
     naxes[1] = SIZE;
 
-    if(Zernike.init == 0)
+    if (Zernike.init == 0)
     {
         zernike_init();
     }
@@ -567,20 +470,19 @@ imageID mk_zer_unbounded1(
     create_2Dimage_ID(ID_name, SIZE, SIZE, &ID);
 
     /* let's compute the polar coordinates */
-    for(ii = 0; ii < SIZE; ii++)
-        for(jj = 0; jj < SIZE; jj++)
+    for (ii = 0; ii < SIZE; ii++)
+        for (jj = 0; jj < SIZE; jj++)
         {
-            r = sqrt((ii - SIZE / 2) * (ii - SIZE / 2) + (jj - SIZE / 2) *
-                     (jj - SIZE / 2)) / rpix;
+            r = sqrt((ii - SIZE / 2) * (ii - SIZE / 2) + (jj - SIZE / 2) * (jj - SIZE / 2)) / rpix;
             theta = atan2((jj - SIZE / 2), (ii - SIZE / 2));
-            if(r > 1.0)
+            if (r > 1.0)
             {
                 r = 1.0;
             }
             data.image[ID].array.F[jj * naxes[0] + ii] = Zernike_value(zer_nb, r, theta);
         }
 
-    if(zer_nb > 0)
+    if (zer_nb > 0)
     {
         make_disk("disk_tmp", SIZE, SIZE, SIZE / 2, SIZE / 2, rpix);
         coeff_norm = sqrt(arith_image_sumsquare("disk_tmp") / arith_image_sumsquare(ID_name));
@@ -588,10 +490,10 @@ imageID mk_zer_unbounded1(
         delete_image_ID("disk_tmp", DELETE_IMAGE_ERRMODE_WARNING);
     }
 
-    if(zer_nb == 0)
+    if (zer_nb == 0)
     {
-        for(ii = 0; ii < SIZE; ii++)
-            for(jj = 0; jj < SIZE; jj++)
+        for (ii = 0; ii < SIZE; ii++)
+            for (jj = 0; jj < SIZE; jj++)
             {
                 data.image[ID].array.F[jj * naxes[0] + ii] = 1.0;
             }
@@ -600,14 +502,7 @@ imageID mk_zer_unbounded1(
     return ID;
 }
 
-
-
-errno_t mk_zer_series(
-    const char *ID_name,
-    long        SIZE,
-    long        zer_nb,
-    float       rpix
-)
+errno_t mk_zer_series(const char *ID_name, long SIZE, long zer_nb, float rpix)
 {
     long ii, jj;
     double *r;
@@ -622,45 +517,48 @@ errno_t mk_zer_series(
     naxes[0] = SIZE;
     naxes[1] = SIZE;
 
-    if(Zernike.init == 0)
+    if (Zernike.init == 0)
     {
         zernike_init();
     }
 
     create_2Dimage_ID("ztmp", SIZE, SIZE, &ID);
 
-    r = (double *) malloc(SIZE * SIZE * sizeof(double));
-    if(r == NULL) {
+    r = (double *)malloc(SIZE * SIZE * sizeof(double));
+    if (r == NULL)
+    {
         PRINT_ERROR("malloc returns NULL pointer");
         abort();
     }
 
-    theta = (double *) malloc(SIZE * SIZE * sizeof(double));
-    if(theta == NULL) {
+    theta = (double *)malloc(SIZE * SIZE * sizeof(double));
+    if (theta == NULL)
+    {
         PRINT_ERROR("malloc returns NULL pointer");
         abort();
     }
 
-    if((r == NULL) || (theta == NULL))
+    if ((r == NULL) || (theta == NULL))
     {
         printf("error in memory allocation !!!\n");
     }
 
     /* let's compute the polar coordinates */
-    for(ii = 0; ii < SIZE; ii++)
-        for(jj = 0; jj < SIZE; jj++)
+    for (ii = 0; ii < SIZE; ii++)
+        for (jj = 0; jj < SIZE; jj++)
         {
-            r[jj * naxes[0] + ii] = sqrt((0.5 + ii - SIZE / 2) * (0.5 + ii - SIZE / 2) +
-                                         (0.5 + jj - SIZE / 2) * (0.5 + jj - SIZE / 2)) / rpix;
+            r[jj * naxes[0] + ii] =
+                sqrt((0.5 + ii - SIZE / 2) * (0.5 + ii - SIZE / 2) + (0.5 + jj - SIZE / 2) * (0.5 + jj - SIZE / 2)) /
+                rpix;
             theta[jj * naxes[0] + ii] = atan2((jj - SIZE / 2), (ii - SIZE / 2));
         }
 
     /* let's make the Zernikes */
-    for(ii = 0; ii < SIZE; ii++)
-        for(jj = 0; jj < SIZE; jj++)
+    for (ii = 0; ii < SIZE; ii++)
+        for (jj = 0; jj < SIZE; jj++)
         {
             tmp = r[jj * naxes[0] + ii];
-            if(tmp < 1.0)
+            if (tmp < 1.0)
             {
                 data.image[ID].array.F[jj * SIZE + ii] = 1.0;
             }
@@ -672,19 +570,18 @@ errno_t mk_zer_series(
     sprintf(fname, "%s%ld", ID_name, j);
     save_fl_fits("ztmp", fname);
 
-    for(j = 1; j < zer_nb; j++)
+    for (j = 1; j < zer_nb; j++)
     {
         /*	printf("%ld/%ld\n",j,zer_nb);*/
         fflush(stdout);
 
-        for(ii = 0; ii < SIZE; ii++)
-            for(jj = 0; jj < SIZE; jj++)
+        for (ii = 0; ii < SIZE; ii++)
+            for (jj = 0; jj < SIZE; jj++)
             {
                 tmp = r[jj * naxes[0] + ii];
-                if(tmp < 1.0)
+                if (tmp < 1.0)
                 {
-                    data.image[ID].array.F[jj * SIZE + ii] = Zernike_value(j, tmp,
-                            theta[jj * naxes[0] + ii]);
+                    data.image[ID].array.F[jj * SIZE + ii] = Zernike_value(j, tmp, theta[jj * naxes[0] + ii]);
                 }
                 else
                 {
@@ -704,14 +601,7 @@ errno_t mk_zer_series(
     return RETURN_SUCCESS;
 }
 
-
-
-imageID mk_zer_seriescube(
-    const char *ID_namec,
-    long        SIZE,
-    long        zer_nb,
-    float       rpix
-)
+imageID mk_zer_seriescube(const char *ID_namec, long SIZE, long zer_nb, float rpix)
 {
     long ii, jj;
     double *r;
@@ -725,42 +615,44 @@ imageID mk_zer_seriescube(
     naxes[0] = SIZE;
     naxes[1] = SIZE;
 
-    if(Zernike.init == 0)
+    if (Zernike.init == 0)
     {
         zernike_init();
     }
 
-     create_3Dimage_ID(ID_namec, SIZE, SIZE, zer_nb, &ID);
+    create_3Dimage_ID(ID_namec, SIZE, SIZE, zer_nb, &ID);
     //    ID = image_ID("ztmp");
 
-    r = (double *) malloc(SIZE * SIZE * sizeof(double));
-    if(r == NULL) {
+    r = (double *)malloc(SIZE * SIZE * sizeof(double));
+    if (r == NULL)
+    {
         PRINT_ERROR("malloc returns NULL pointer");
         abort();
     }
 
-    theta = (double *) malloc(SIZE * SIZE * sizeof(double));
-    if(theta == NULL) {
+    theta = (double *)malloc(SIZE * SIZE * sizeof(double));
+    if (theta == NULL)
+    {
         PRINT_ERROR("malloc returns NULL pointer");
         abort();
     }
-
 
     /* let's compute the polar coordinates */
-    for(ii = 0; ii < SIZE; ii++)
-        for(jj = 0; jj < SIZE; jj++)
+    for (ii = 0; ii < SIZE; ii++)
+        for (jj = 0; jj < SIZE; jj++)
         {
-            r[jj * naxes[0] + ii] = sqrt((0.5 + ii - SIZE / 2) * (0.5 + ii - SIZE / 2) +
-                                         (0.5 + jj - SIZE / 2) * (0.5 + jj - SIZE / 2)) / rpix;
+            r[jj * naxes[0] + ii] =
+                sqrt((0.5 + ii - SIZE / 2) * (0.5 + ii - SIZE / 2) + (0.5 + jj - SIZE / 2) * (0.5 + jj - SIZE / 2)) /
+                rpix;
             theta[jj * naxes[0] + ii] = atan2((jj - SIZE / 2), (ii - SIZE / 2));
         }
 
     /* let's make the Zernikes */
-    for(ii = 0; ii < SIZE; ii++)
-        for(jj = 0; jj < SIZE; jj++)
+    for (ii = 0; ii < SIZE; ii++)
+        for (jj = 0; jj < SIZE; jj++)
         {
             tmp = r[jj * naxes[0] + ii];
-            if(tmp < 1.0)
+            if (tmp < 1.0)
             {
                 data.image[ID].array.F[jj * SIZE + ii] = 1.0;
             }
@@ -769,19 +661,19 @@ imageID mk_zer_seriescube(
                 data.image[ID].array.F[jj * SIZE + ii] = 0.0;
             }
         }
-    for(j = 1; j < zer_nb; j++)
+    for (j = 1; j < zer_nb; j++)
     {
         /*	printf("%ld/%ld\n",j,zer_nb);*/
         //        fflush(stdout);
 
-        for(ii = 0; ii < SIZE; ii++)
-            for(jj = 0; jj < SIZE; jj++)
+        for (ii = 0; ii < SIZE; ii++)
+            for (jj = 0; jj < SIZE; jj++)
             {
                 tmp = r[jj * naxes[0] + ii];
-                if(tmp < 1.0)
+                if (tmp < 1.0)
                 {
-                    data.image[ID].array.F[j * SIZE * SIZE + jj * SIZE + ii] = Zernike_value(j, tmp,
-                            theta[jj * naxes[0] + ii]);
+                    data.image[ID].array.F[j * SIZE * SIZE + jj * SIZE + ii] =
+                        Zernike_value(j, tmp, theta[jj * naxes[0] + ii]);
                 }
                 else
                 {
@@ -795,9 +687,6 @@ imageID mk_zer_seriescube(
 
     return ID;
 }
-
-
-
 
 double get_zer(const char *ID_name, long zer_nb, double radius)
 {
@@ -814,9 +703,9 @@ double get_zer(const char *ID_name, long zer_nb, double radius)
     sprintf(fname, "/RAID0/tmp/Zernike/Z_%ld", zer_nb);
     sprintf(fname1, "Z_%ld", zer_nb);
 
-    if((ID = image_ID(fname1)) == -1)
+    if ((ID = image_ID(fname1)) == -1)
     {
-        if(file_exists(fname) == 1)
+        if (file_exists(fname) == 1)
         {
             imageID IDtmp;
             load_fits(fname, fname1, 1, &IDtmp);
@@ -834,18 +723,10 @@ double get_zer(const char *ID_name, long zer_nb, double radius)
     /*  delete_image_ID("zernike_tmp");*/
     delete_image_ID("mult_tmp", DELETE_IMAGE_ERRMODE_WARNING);
 
-    return(value);
+    return (value);
 }
 
-
-
-
-double get_zer_crop(
-    const char *ID_name,
-    long zer_nb,
-    double radius,
-    double radius1
-)
+double get_zer_crop(const char *ID_name, long zer_nb, double radius, double radius1)
 {
     double value;
     long SIZE;
@@ -860,9 +741,9 @@ double get_zer_crop(
     sprintf(fname, "/RAID0/tmp/Zernike/Z_%ld", zer_nb);
     sprintf(fname1, "Z_%ld", zer_nb);
 
-    if((ID = image_ID(fname1)) == -1)
+    if ((ID = image_ID(fname1)) == -1)
     {
-        if(file_exists(fname) == 1)
+        if (file_exists(fname) == 1)
         {
             imageID IDtmp;
             load_fits(fname, fname1, 1, &IDtmp);
@@ -882,35 +763,22 @@ double get_zer_crop(
     delete_image_ID("mult_tmp", DELETE_IMAGE_ERRMODE_WARNING);
     delete_image_ID("mult_tmp1", DELETE_IMAGE_ERRMODE_WARNING);
 
-    return(value);
+    return (value);
 }
 
-
-
-int get_zerns(
-    const char *ID_name,
-    long max_zer,
-    double radius
-)
+int get_zerns(const char *ID_name, long max_zer, double radius)
 {
-    for(long i = 0; i < max_zer; i++)
+    for (long i = 0; i < max_zer; i++)
     {
         printf("%ld %e\n", i, get_zer(ID_name, i, radius));
     }
 
-    return(0);
+    return (0);
 }
 
-
-
-int get_zern_array(
-    const char *ID_name,
-    long max_zer,
-    double radius,
-    double *array
-)
+int get_zern_array(const char *ID_name, long max_zer, double radius, double *array)
 {
-    for(long i = 0; i < max_zer; i++)
+    for (long i = 0; i < max_zer; i++)
     {
         double tmp;
 
@@ -919,17 +787,10 @@ int get_zern_array(
         array[i] = tmp;
     }
 
-    return(0);
+    return (0);
 }
 
-
-
-int remove_zerns(
-    const char *ID_name,
-    const char *ID_name_out,
-    int max_zer,
-    double radius
-)
+int remove_zerns(const char *ID_name, const char *ID_name_out, int max_zer, double radius)
 {
     imageID ID;
     long SIZE;
@@ -937,7 +798,7 @@ int remove_zerns(
     copy_image_ID(ID_name, ID_name_out, 0);
     ID = image_ID(ID_name);
     SIZE = data.image[ID].md[0].size[0];
-    for(int i = 0; i < max_zer; i++)
+    for (int i = 0; i < max_zer; i++)
     {
         double coeff;
 
@@ -950,16 +811,10 @@ int remove_zerns(
         delete_image_ID("tmp", DELETE_IMAGE_ERRMODE_WARNING);
         delete_image_ID("zer_tmp", DELETE_IMAGE_ERRMODE_WARNING);
     }
-    return(0);
+    return (0);
 }
 
-
-
-
-long ZERNIKEPOLYN_rmPiston(
-    const char *ID_name,
-    const char *IDmask_name
-)
+long ZERNIKEPOLYN_rmPiston(const char *ID_name, const char *IDmask_name)
 {
     imageID ID, IDmask;
     long xsize, ysize, zsize, xysize;
@@ -973,37 +828,28 @@ long ZERNIKEPOLYN_rmPiston(
 
     IDmask = image_ID(IDmask_name);
 
-    for(kk = 0; kk < zsize; kk++)
+    for (kk = 0; kk < zsize; kk++)
     {
         double tot1, tot2, ave;
 
         tot1 = 0.0;
         tot2 = 0.0;
-        for(ii = 0; ii < xysize; ii++)
+        for (ii = 0; ii < xysize; ii++)
         {
-            tot1 += data.image[ID].array.F[kk * xysize + ii] *
-                    data.image[IDmask].array.F[ii];
+            tot1 += data.image[ID].array.F[kk * xysize + ii] * data.image[IDmask].array.F[ii];
             tot2 += data.image[IDmask].array.F[ii];
         }
         ave = tot1 / tot2;
-        for(ii = 0; ii < xysize; ii++)
+        for (ii = 0; ii < xysize; ii++)
         {
             data.image[ID].array.F[kk * xysize + ii] -= ave;
         }
     }
 
-    return(ID);
+    return (ID);
 }
 
-
-
-
-
-int remove_TTF(
-    const char *ID_name,
-    const char *ID_name_out,
-    double radius
-)
+int remove_TTF(const char *ID_name, const char *ID_name_out, double radius)
 {
     int i;
     double coeff;
@@ -1016,9 +862,9 @@ int remove_TTF(
     SIZE = data.image[ID].md[0].size[0];
     make_disk("disktmpttf", SIZE, SIZE, 0.5 * SIZE, 0.5 * SIZE, radius);
     //  list_image_ID();
-    for(i = 0; i < 5; i++)
+    for (i = 0; i < 5; i++)
     {
-        if((i == 0) || (i == 1) || (i == 2) || (i == 4))
+        if ((i == 0) || (i == 1) || (i == 2) || (i == 4))
         {
             mk_zer("zer_tmp", SIZE, i, radius);
             arith_image_mult("zer_tmp", ID_name, "mult_tmp");
@@ -1039,21 +885,10 @@ int remove_TTF(
     }
     delete_image_ID("disktmpttf", DELETE_IMAGE_ERRMODE_WARNING);
 
-    return(0);
+    return (0);
 }
 
-
-
-
-
-
-double fit_zer(
-    const char *ID_name,
-    long maxzer_nb,
-    double radius,
-    double *zvalue,
-    double *residual
-)
+double fit_zer(const char *ID_name, long maxzer_nb, double radius, double *zvalue, double *residual)
 {
     long SIZE;
     imageID ID, IDZ, IDdisk;
@@ -1075,28 +910,28 @@ double fit_zer(
     SIZE = data.image[ID].md[0].size[0];
     IDdisk = make_disk("dtmp", SIZE, SIZE, 0.5 * SIZE, 0.5 * SIZE, 0.999 * radius);
 
-    for(ii = 0; ii < SIZE * SIZE; ii++)
-        if(data.image[IDdisk].array.F[ii] > 0.5)
+    for (ii = 0; ii < SIZE * SIZE; ii++)
+        if (data.image[IDdisk].array.F[ii] > 0.5)
         {
             disktot += 1.0;
         }
 
-    for(i = 0; i < maxzer_nb; i++)
+    for (i = 0; i < maxzer_nb; i++)
     {
         residual[i] = 0.0;
         zvalue[i] = 0.0;
     }
 
-    for(pass = 0; pass < NBpass; pass++)
+    for (pass = 0; pass < NBpass; pass++)
     {
-        for(i = 0; i < maxzer_nb; i++)
+        for (i = 0; i < maxzer_nb; i++)
         {
             sprintf(fname, "/RAID0/tmp/Zernike/Z_%ld", i);
             sprintf(fname1, "Z_%ld", i);
 
-            if((IDZ = image_ID(fname1)) == -1)
+            if ((IDZ = image_ID(fname1)) == -1)
             {
-                if(file_exists(fname) == 1)
+                if (file_exists(fname) == 1)
                 {
                     load_fits(fname, fname1, 1, &IDZ);
                 }
@@ -1106,22 +941,22 @@ double fit_zer(
                 }
             }
             tmp = 0.0;
-            for(ii = 0; ii < SIZE * SIZE; ii++)
-                if(data.image[IDdisk].array.F[ii] > 0.5)
+            for (ii = 0; ii < SIZE * SIZE; ii++)
+                if (data.image[IDdisk].array.F[ii] > 0.5)
                 {
                     tmp += data.image[IDZ].array.F[ii] * data.image[ID].array.F[ii];
                 }
             value = tmp / disktot;
 
-            for(ii = 0; ii < SIZE * SIZE; ii++)
-                if(data.image[IDdisk].array.F[ii] > 0.5)
+            for (ii = 0; ii < SIZE * SIZE; ii++)
+                if (data.image[IDdisk].array.F[ii] > 0.5)
                 {
                     data.image[ID].array.F[ii] -= value * data.image[IDZ].array.F[ii];
                 }
             zvalue[i] += value;
             tmp = 0.0;
-            for(ii = 0; ii < SIZE * SIZE; ii++)
-                if(data.image[IDdisk].array.F[ii] > 0.5)
+            for (ii = 0; ii < SIZE * SIZE; ii++)
+                if (data.image[IDdisk].array.F[ii] > 0.5)
                 {
                     tmp += data.image[ID].array.F[ii] * data.image[ID].array.F[ii];
                 }
@@ -1131,14 +966,14 @@ double fit_zer(
     }
 
     residual[maxzer_nb - 1] = residualf;
-    for(i = maxzer_nb - 1; i > 0; i--)
+    for (i = maxzer_nb - 1; i > 0; i--)
     {
         residual[i - 1] = sqrt(residual[i] * residual[i] + zvalue[i] * zvalue[i]);
     }
 
-    for(ii = 0; ii < SIZE * SIZE; ii++)
+    for (ii = 0; ii < SIZE * SIZE; ii++)
     {
-        if(data.image[IDdisk].array.F[ii] < 0.5)
+        if (data.image[IDdisk].array.F[ii] < 0.5)
         {
             data.image[ID].array.F[ii] = 0.0;
         }
@@ -1146,5 +981,5 @@ double fit_zer(
 
     delete_image_ID("dtmp", DELETE_IMAGE_ERRMODE_WARNING);
 
-    return(residualf);
+    return (residualf);
 }
