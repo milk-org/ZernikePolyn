@@ -70,8 +70,8 @@ INIT_MODULE_LIB(ZernikePolyn)
 
 errno_t mk_zer_cli()
 {
-    if(CLI_checkarg(1, CLIARG_STR_NOT_IMG) + CLI_checkarg(2, CLIARG_LONG) +
-            CLI_checkarg(3, CLIARG_LONG) + CLI_checkarg(4, CLIARG_FLOAT) ==
+    if(CLI_checkarg(1, CLIARG_STR_NOT_IMG) + CLI_checkarg(2, CLIARG_INT64) +
+            CLI_checkarg(3, CLIARG_INT64) + CLI_checkarg(4, CLIARG_FLOAT64) ==
             0)
     {
         mk_zer(data.cmdargtoken[1].val.string,
