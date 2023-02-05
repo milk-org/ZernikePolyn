@@ -1,26 +1,9 @@
 #ifndef _ZERNIKEPOLYN_H
 #define _ZERNIKEPOLYN_H
 
-typedef struct /* structure to store Zernike coefficients */
-{
-    int     init;
-    long    ZERMAX;
-    long   *Zer_n;
-    long   *Zer_m;
-    double *R_array;
-} ZERNIKE;
 
 void __attribute__((constructor)) libinit_ZernikePolyn();
 
-double fact(int n);
-
-int zernike_init();
-
-long Zernike_n(long i);
-
-long Zernike_m(long i);
-
-double Zernike_value(long j, double r, double PA);
 
 imageID mk_zer(const char *ID_name, long SIZE, long zer_nb, float rpix);
 

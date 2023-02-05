@@ -6,10 +6,14 @@ message("")
 message(" SRCNAME = ${SRCNAME} -> LIBNAME = ${LIBNAME}")
 
 set(SOURCEFILES
-	${SRCNAME}.c)
+	${SRCNAME}.c
+	zernike_value.c
+	mkzercube.c
+)
 
 set(INCLUDEFILES
-	${SRCNAME}.h)
+	${SRCNAME}.h
+)
 
 
 # DEFAULT SETTINGS
