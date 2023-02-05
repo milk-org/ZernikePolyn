@@ -37,6 +37,9 @@ static float *radiusmaskfactor;
 static long  fpi_radiusmaskfactor;
 
 
+static float *TTfactor;
+static long fpi_TTfactor;
+
 static uint32_t *NBzermode;
 static long  fpi_NBzermode;
 
@@ -107,6 +110,15 @@ static CLICMDARGDEF farg[] =
         CLIARG_HIDDEN_DEFAULT,
         (void **) &radiusmaskfactor,
         &fpi_radiusmaskfactor
+    },
+     {
+        CLIARG_FLOAT32,
+        ".TTfactor",
+        "amplitude factor on TTr",
+        "1.0",
+        CLIARG_HIDDEN_DEFAULT,
+        (void **) &TTfactor,
+        &fpi_TTfactor
     },
     {
         CLIARG_UINT32,
@@ -225,12 +237,21 @@ static errno_t compute_function()
         //
         for(uint32_t zi = 0; zi < (*NBzermode); zi++)
         {
+            float ampl = 1.0;
+            if((zi == 0) || (zi == 1))
+            {
+                ampl = *TTfactor;
+            }
+            else
+            {
+                ampl = 1.0;
+            }
             for(uint32_t ii = 0; ii < xysize; ii++)
             {
                 float r = polar_r[ii];
                 if(r < (*radiusmaskfactor))
                 {
-                    imgout.im->array.F[zi*xysize + ii] = Zernike_value(zi+1, r, polar_theta[ii]);
+                    imgout.im->array.F[zi*xysize + ii] = ampl * Zernike_value(zi+1, r, polar_theta[ii]);
                 }
                 else
                 {
